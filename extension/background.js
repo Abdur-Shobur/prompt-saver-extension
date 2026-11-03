@@ -7,6 +7,8 @@ const DEFAULT_SETTINGS = {
   autoBackup: true            // daily backup file in Downloads/PromptSaver/
 };
 
+const SERVER_URL = 'https://prompt-saver-extension-server.vercel.app';
+
 const SYNC_ALARM = 'ps-sync';
 const BACKUP_ALARM = 'ps-backup';
 const BACKUP_FILE = 'PromptSaver/prompts-backup.json';
@@ -191,7 +193,7 @@ async function doSync() {
   // Push in chunks — Vercel limits request bodies to ~4.5 MB.
   const chunks = chunkBySize(dirty.map(toWire));
   for (let i = 0; i < chunks.length - 1; i++) {
-    await api(auth.serverUrl, '/api/sync', { prompts: chunks[i], pull: false }, auth.token);
+    await api(SERVER_URL, '/api/sync', { prompts: chunks[i], pull: false }, auth.token);
   }
 
   // Last chunk + pull everything changed since our cursor (paged).
@@ -199,7 +201,7 @@ async function doSync() {
   let since = null;
   const changes = [];
   for (let i = 0; i < 1000; i++) {
-    const res = await api(auth.serverUrl, '/api/sync', body, auth.token);
+    const res = await api(SERVER_URL, '/api/sync', body, auth.token);
     if (since === null) since = res.now;
     changes.push(...(res.changes || []));
     if (!res.more || !res.after) break;
@@ -222,9 +224,8 @@ async function doSync() {
   });
 }
 
-async function login({ serverUrl, email, password, register }) {
-  serverUrl = String(serverUrl || '').trim().replace(/\/+$/, '');
-  if (!/^https?:\/\//i.test(serverUrl)) throw new Error('Server URL must start with https://');
+async function login({ email, password, register }) {
+  const serverUrl = SERVER_URL;
   const data = await api(serverUrl, register ? '/api/register' : '/api/login', { email, password });
   await locked(async () => {
     const prompts = await getPrompts();

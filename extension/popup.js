@@ -9,6 +9,7 @@ const ICONS = {
 };
 const SITE_LABEL = { chatgpt: 'ChatGPT', claude: 'Claude' };
 const PAGE = 150;
+const SERVER_URL = 'https://prompt-saver-extension-server.vercel.app';
 
 const state = {
   prompts: [], auth: null, settings: {}, filter: 'all', q: '', limit: PAGE,
@@ -170,7 +171,6 @@ function renderSettings() {
   const pill = $('#syncPill');
   if (a) {
     $('#whoami').textContent = a.email;
-    $('#serverInfo').textContent = a.serverUrl;
     $('#lastSync').textContent = 'Last sync: ' + ago(state.lastSyncAt);
     pill.textContent = state.syncError ? 'Sync error' : 'Synced';
     pill.className = 'pill ' + (state.syncError ? 'err' : 'on');
@@ -238,16 +238,15 @@ $('#importFile').addEventListener('change', async (e) => {
 
 async function doAuth(register) {
   const msg = $('#authMsg');
-  const serverUrl = $('#serverUrl').value.trim();
   const email = $('#email').value.trim();
   const password = $('#password').value;
-  if (!serverUrl || !email || password.length < 6) {
-    setMsg(msg, 'Enter server URL, email and a password (6+ characters).', 'error');
+  if (!email || password.length < 6) {
+    setMsg(msg, 'Enter your email and a password (6+ characters).', 'error');
     return;
   }
   $('#loginBtn').disabled = $('#registerBtn').disabled = true;
   setMsg(msg, register ? 'Creating account…' : 'Logging in…');
-  const r = await send('LOGIN', { serverUrl, email, password, register });
+  const r = await send('LOGIN', { email, password, register });
   $('#loginBtn').disabled = $('#registerBtn').disabled = false;
   if (r?.ok) {
     $('#password').value = '';
@@ -283,10 +282,18 @@ $('#autoBackup').onchange = (e) => send('SET_SETTINGS', { settings: { autoBackup
 $('#siteChatgpt').onchange = (e) => send('SET_SETTINGS', { settings: { sites: { chatgpt: e.target.checked } } });
 $('#siteClaude').onchange = (e) => send('SET_SETTINGS', { settings: { sites: { claude: e.target.checked } } });
 
-// Prefill last-used server URL
-chrome.storage.local.get('lastServerUrl').then(({ lastServerUrl }) => {
-  if (lastServerUrl && !$('#serverUrl').value) $('#serverUrl').value = lastServerUrl;
-});
-$('#serverUrl').addEventListener('change', (e) => chrome.storage.local.set({ lastServerUrl: e.target.value.trim() }));
+// Server reachability check
+async function checkServer() {
+  const el = $('#serverStatus');
+  try {
+    const r = await fetch(SERVER_URL + '/api/health', { cache: 'no-store' });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) { el.textContent = 'online'; el.className = 'ok-text'; }
+    else { el.textContent = d.error || `error (${r.status})`; el.className = 'err-text'; }
+  } catch {
+    el.textContent = 'offline'; el.className = 'err-text';
+  }
+}
+checkServer();
 
 load();

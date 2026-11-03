@@ -1,15 +1,15 @@
 {
-	"name": "prompt-saver-server",
-	"version": "2.0.0",
-	"private": true,
-	"description": "Prompt Saver sync API for Vercel + MongoDB",
-	"type": "module",
-	"engines": {
-		"node": ">=18"
-	},
-	"dependencies": {
-		"bcryptjs": "^2.4.3",
-		"jsonwebtoken": "^9.0.2",
-		"mongodb": "^6.12.0"
-	}
+  "name": "prompt-saver-server",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Prompt Saver sync API for Vercel + MongoDB",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.12.0"
+  }
 }

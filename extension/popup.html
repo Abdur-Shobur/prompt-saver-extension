@@ -57,9 +57,7 @@
     <div class="card-box">
       <h3>Cloud sync</h3>
       <div id="loggedOut">
-        <p class="muted">Log in to your Prompt Saver server to back up prompts and get them back on any PC.</p>
-        <label class="field"><span>Server URL</span>
-          <input id="serverUrl" type="url" placeholder="https://your-project.vercel.app"></label>
+        <p class="muted">Log in to back up your prompts online and get them back on any PC.</p>
         <label class="field"><span>Email</span>
           <input id="email" type="email" autocomplete="username"></label>
         <label class="field"><span>Password</span>
@@ -71,7 +69,7 @@
       </div>
       <div id="loggedIn" hidden>
         <p>Signed in as <strong id="whoami"></strong></p>
-        <p class="muted" id="serverInfo"></p>
+        
         <p class="muted" id="lastSync"></p>
         <div class="row">
           <button id="syncBtn" class="btn primary">Sync now</button>
@@ -79,6 +77,7 @@
         </div>
       </div>
       <p id="authMsg" class="msg" role="status"></p>
+      <p class="muted server-line">Server: <span id="serverStatus">checking…</span></p>
     </div>
 
     <div class="card-box">

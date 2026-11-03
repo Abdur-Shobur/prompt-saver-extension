@@ -1,9 +1,11 @@
 # Prompt Saver
 
+<img src="./image.png"/>
+
 Auto-saves every prompt you send on **ChatGPT** and **Claude**.
 
 - **Saved on your PC** — always, in the browser's local storage (works with no account).
-- **Backup file on your PC** — `Downloads/PromptSaver/prompts-backup.json`, written once a day (toggle in settings) or with *Back up now*.
+- **Backup file on your PC** — `Downloads/PromptSaver/prompts-backup.json`, written once a day (toggle in settings) or with _Back up now_.
 - **Saved on your server** — Vercel + MongoDB. Log in and prompts sync both ways. Log in on another PC and everything comes back.
 
 ```
@@ -29,6 +31,7 @@ prompt-saver/
 Send a prompt — the icon flashes ✓ and it appears in the popup.
 
 ### Popup features
+
 - Search, filter by ChatGPT / Claude / ★ Starred
 - Copy, star, open original chat, delete
 - Export JSON / Markdown, Import JSON
@@ -39,8 +42,8 @@ Send a prompt — the icon flashes ✓ and it appears in the popup.
 ## 2. Create the MongoDB database (MongoDB Atlas, free tier works)
 
 1. Go to <https://cloud.mongodb.com> → create a project → **Create cluster** (M0 Free).
-2. **Database Access** → *Add new database user* → username + password (role: *Read and write to any database*).
-3. **Network Access** → *Add IP address* → **Allow access from anywhere** (`0.0.0.0/0`).
+2. **Database Access** → _Add new database user_ → username + password (role: _Read and write to any database_).
+3. **Network Access** → _Add IP address_ → **Allow access from anywhere** (`0.0.0.0/0`).
    Vercel functions run from changing IPs, so this is required.
 4. **Database → Connect → Drivers** → copy the connection string, e.g.
    `mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`
@@ -48,27 +51,29 @@ Send a prompt — the icon flashes ✓ and it appears in the popup.
 
 Collections and indexes (`users`, `prompts`, `attempts`) are created automatically on first request.
 
-> Alternative: in Vercel → *Storage* / *Marketplace* → **MongoDB Atlas** integration creates the cluster and sets `MONGODB_URI` for you.
+> Alternative: in Vercel → _Storage_ / _Marketplace_ → **MongoDB Atlas** integration creates the cluster and sets `MONGODB_URI` for you.
 
 ---
 
 ## 3. Deploy the API to Vercel
 
 ### Option A — GitHub (recommended)
+
 1. Push the `server` folder to a GitHub repo (the folder contents at the repo root).
 2. Vercel → **Add New → Project** → import the repo. Framework preset: **Other**. No build command needed.
 3. **Settings → Environment Variables** — add:
 
-| Variable | Value |
-|---|---|
-| `MONGODB_URI` | your Atlas connection string |
-| `JWT_SECRET` | long random string (`openssl rand -hex 32`) |
-| `MONGODB_DB` | `prompt_saver` (optional) |
+| Variable         | Value                                                 |
+| ---------------- | ----------------------------------------------------- |
+| `MONGODB_URI`    | your Atlas connection string                          |
+| `JWT_SECRET`     | long random string (`openssl rand -hex 32`)           |
+| `MONGODB_DB`     | `prompt_saver` (optional)                             |
 | `ALLOW_REGISTER` | `true` — set to `false` after you create your account |
 
 4. **Deploy**. If you added variables after the first deploy, redeploy once.
 
 ### Option B — Vercel CLI
+
 ```bash
 npm i -g vercel
 cd server
@@ -79,6 +84,7 @@ vercel --prod
 ```
 
 ### Check it works
+
 Open `https://YOUR-PROJECT.vercel.app/api/health` → should show `{"ok":true,"db":"connected"}`.
 
 Keep the same `JWT_SECRET` forever — changing it logs every device out (prompts are not lost).
@@ -104,13 +110,16 @@ Auto-sync runs after every new prompt and every 5 minutes.
 - API: MongoDB with a cached connection across invocations, bcrypt passwords, JWT login (180 days), login rate limiting stored in MongoDB, CORS open for the extension.
 
 ### API
-| Endpoint | Body | Returns |
-|---|---|---|
-| `GET /api/health` | – | `{ ok, db }` |
-| `POST /api/register` | `{ email, password }` | `{ token, email }` |
-| `POST /api/login` | `{ email, password }` | `{ token, email }` |
-| `POST /api/sync` *(Bearer token)* | `{ since, prompts[], after?, pull? }` | `{ now, more, after, changes[] }` |
+
+| Endpoint                          | Body                                  | Returns                           |
+| --------------------------------- | ------------------------------------- | --------------------------------- |
+| `GET /api/health`                 | –                                     | `{ ok, db }`                      |
+| `POST /api/register`              | `{ email, password }`                 | `{ token, email }`                |
+| `POST /api/login`                 | `{ email, password }`                 | `{ token, email }`                |
+| `POST /api/sync` _(Bearer token)_ | `{ since, prompts[], after?, pull? }` | `{ now, more, after, changes[] }` |
 
 ## If a site changes its layout
+
 ChatGPT/Claude occasionally rename their buttons. If capture stops working, update the selectors at the top of `extension/content.js` (`COMPOSER_SELECTORS`, `SEND_SELECTORS`) and reload the extension.
+
 # prompt-saver-extension
