@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt Saver</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon32.png" alt="" width="20" height="20">
+      <span>Prompt Saver</span>
+    </div>
+    <div class="top-actions">
+      <span id="syncPill" class="pill" title="Sync status">Local only</span>
+      <button id="openFull" class="icon-btn" title="Open in full tab" aria-label="Open in full tab">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path d="M14 3h7v7M21 3l-9 9M10 5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="prompts">Prompts</button>
+    <button class="tab" data-tab="settings">Account &amp; Backup</button>
+  </nav>
+
+  <!-- PROMPTS -->
+  <section id="tab-prompts" class="panel">
+    <div class="toolbar">
+      <input id="search" type="search" placeholder="Search prompts…" autocomplete="off">
+      <div class="filters">
+        <button class="chip active" data-filter="all">All</button>
+        <button class="chip" data-filter="chatgpt">ChatGPT</button>
+        <button class="chip" data-filter="claude">Claude</button>
+        <button class="chip" data-filter="fav">★ Starred</button>
+      </div>
+    </div>
+    <div id="list" class="list"></div>
+    <div id="empty" class="empty" hidden>
+      <p><strong>No prompts yet.</strong></p>
+      <p>Send a message on ChatGPT or Claude and it will appear here automatically.</p>
+    </div>
+    <footer class="foot">
+      <span id="count" class="muted"></span>
+      <div class="foot-actions">
+        <button id="exportJson" class="btn small">Export JSON</button>
+        <button id="exportMd" class="btn small">Export .md</button>
+        <label class="btn small" for="importFile">Import</label>
+        <input id="importFile" type="file" accept=".json,application/json" hidden>
+      </div>
+    </footer>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" class="panel" hidden>
+    <div class="card-box">
+      <h3>Cloud sync</h3>
+      <div id="loggedOut">
+        <p class="muted">Log in to your Prompt Saver server to back up prompts and get them back on any PC.</p>
+        <label class="field"><span>Server URL</span>
+          <input id="serverUrl" type="url" placeholder="https://your-project.vercel.app"></label>
+        <label class="field"><span>Email</span>
+          <input id="email" type="email" autocomplete="username"></label>
+        <label class="field"><span>Password</span>
+          <input id="password" type="password" autocomplete="current-password" minlength="6"></label>
+        <div class="row">
+          <button id="loginBtn" class="btn primary">Log in</button>
+          <button id="registerBtn" class="btn">Create account</button>
+        </div>
+      </div>
+      <div id="loggedIn" hidden>
+        <p>Signed in as <strong id="whoami"></strong></p>
+        <p class="muted" id="serverInfo"></p>
+        <p class="muted" id="lastSync"></p>
+        <div class="row">
+          <button id="syncBtn" class="btn primary">Sync now</button>
+          <button id="logoutBtn" class="btn">Log out</button>
+        </div>
+      </div>
+      <p id="authMsg" class="msg" role="status"></p>
+    </div>
+
+    <div class="card-box">
+      <h3>Save on this PC</h3>
+      <p class="muted">Prompts are always stored in this browser. A backup file can also be written to <code>Downloads/PromptSaver/prompts-backup.json</code>.</p>
+      <label class="toggle"><input id="autoBackup" type="checkbox"> <span>Auto backup file once a day</span></label>
+      <div class="row">
+        <button id="backupBtn" class="btn">Back up now</button>
+      </div>
+      <p class="muted" id="lastBackup"></p>
+      <p id="backupMsg" class="msg" role="status"></p>
+    </div>
+
+    <div class="card-box">
+      <h3>Auto-save on</h3>
+      <label class="toggle"><input id="siteChatgpt" type="checkbox"> <span>ChatGPT (chatgpt.com)</span></label>
+      <label class="toggle"><input id="siteClaude" type="checkbox"> <span>Claude (claude.ai)</span></label>
+    </div>
+  </section>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="popup.js"></script>
+</body>
+</html>
